@@ -1,0 +1,50 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# 讀取資料
+df = pd.read_csv('seattle-weather.csv')
+
+# Label Encoding
+le = LabelEncoder()
+df['weather'] = le.fit_transform(df['weather'])
+
+# 特徵與目標
+X = df[['temp_min', 'temp_max', 'precipitation', 'wind']]
+y = df['weather']
+
+# 切分資料
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 建立模型
+from sklearn.ensemble import RandomForestClassifier
+nb_model = RandomForestClassifier(n_estimators=100, random_state=42)
+nb_model.fit(X_train, y_train)
+
+# 預測
+y_pred = nb_model.predict(X_test)
+
+pred_df = pd.DataFrame({
+    'temp_min': X_test['temp_min'],
+    'temp_max': X_test['temp_max'],
+    'precipitation': X_test['precipitation'],
+    'wind': X_test['wind'],
+    'actual_weather': le.inverse_transform(y_test),
+    'predicted_weather': le.inverse_transform(y_pred)
+})
+
+# 印出前20筆結果
+print(pred_df.head(20))
+
+# 計算準確率、混淆矩陣與分類報告
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+classification_rep = classification_report(y_test, y_pred, zero_division=1)
+
+# 印出評估結果：準確率、混淆矩陣及分類報告
+print(f"Accuracy: {accuracy:.2f}")
+print("Confusion Matrix:")
+print(conf_matrix)
+print("Classification Report:")
+print(classification_rep)
