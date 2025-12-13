@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, recall_score, precision_score, classification_report
 
 # 讀取資料
 df = pd.read_csv('seattle-weather.csv')
@@ -37,14 +37,16 @@ pred_df = pd.DataFrame({
 # 印出前20筆結果
 print(pred_df.head(20))
 
-# 計算準確率、混淆矩陣與分類報告
+# 計算準確率、召回率與精確率（多類別：使用 macro 平均）
 accuracy = accuracy_score(y_test, y_pred)
-conf_matrix = confusion_matrix(y_test, y_pred)
-classification_rep = classification_report(y_test, y_pred, zero_division=1)
+recall = recall_score(y_test, y_pred, average='macro')
+precision = precision_score(y_test, y_pred, average='macro')
 
-# 印出評估結果：準確率、混淆矩陣及分類報告
+# 印出評估結果：準確率、召回率及精確率
 print(f"Accuracy: {accuracy:.2f}")
-print("Confusion Matrix:")
-print(conf_matrix)
-print("Classification Report:")
-print(classification_rep)
+print(f"Recall (Macro): {recall:.2f}")
+print(f"Precision (Macro): {precision:.2f}")
+
+# 額外：印出詳細分類報告（每個類別的 precision/recall/f1）
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred, target_names=le.classes_))
