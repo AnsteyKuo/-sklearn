@@ -1,26 +1,43 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, classification_report
 
 # 讀取資料
 df = pd.read_csv('seattle_weather_processed(1).csv')
 
+# df['month'] = pd.to_datetime(df['date']).dt.month
+# df['dayofyear'] = pd.to_datetime(df['date']).dt.dayofyear
+
+
 # Label Encoding
 le = LabelEncoder()
-df['weather'] = le.fit_transform(df['weather'])
+df['weather_code'] = le.fit_transform(df['weather'])
+classes = le.classes_
 
 # 特徵與目標
 X = df[['temp_min', 'temp_max', 'precipitation', 'wind', 'temp_range', 'temp_avg', 'wind_grade', 'precip_3day_avg', 'wind_3day_avg', 'temp_3day_avg', 'rain_streak']]
-y = df['weather']
+y = df['weather_code']
 
 # 切分資料
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # 建立模型
-from sklearn.ensemble import RandomForestClassifier
 nb_model = RandomForestClassifier(n_estimators=100, random_state=42)
 nb_model.fit(X_train, y_train)
+# 建立模型（entropy 分支）
+# 建立模型（log_loss 分支）
+# from sklearn.ensemble import RandomForestClassifier
+# nb_model = RandomForestClassifier(
+#     n_estimators=200,
+#     criterion='entropy',
+#     min_samples_leaf=5,
+#     random_state=42
+# )
+# nb_model.fit(X_train, y_train)
+
+
 
 # 預測
 y_pred = nb_model.predict(X_test)
